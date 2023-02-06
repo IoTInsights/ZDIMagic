@@ -28,8 +28,8 @@
 *.app
 
 *_workspace
-Debug
-Release
+Debug/
+Release/
 .cproject
 .mxproject
-
+.settings

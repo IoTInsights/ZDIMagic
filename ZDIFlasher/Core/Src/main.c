@@ -21,10 +21,12 @@
 #include "dma.h"
 #include "spi.h"
 #include "tim.h"
+#include "usb_device.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "zdi.h"
 
 /* USER CODE END Includes */
 
@@ -45,6 +47,8 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+
+ZDIHandle zdi_handle;
 
 /* USER CODE END PV */
 
@@ -90,14 +94,23 @@ int main(void)
   MX_DMA_Init();
   MX_TIM11_Init();
   MX_SPI1_Init();
+  MX_USB_DEVICE_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
 
-  HAL_TIM_PWM_Start(&htim11, TIM_CHANNEL_1);
+//  HAL_TIM_PWM_Start(&htim11, TIM_CHANNEL_1);
+  HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_1);
+  HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_2);
+
+  zdi_init();
+  zdi_open(&zdi_handle, &htim2);
+
+  zdi_connect(&zdi_handle);
 
 //  __disable_irq();
 
-  __IO uint32_t * clock_idr = &CLOCK_GPIO_Port->IDR;
-  __IO uint32_t * data_bssr = &DATA_GPIO_Port->BSRR;
+//  __IO uint32_t * clock_idr = &CLOCK_GPIO_Port->IDR;
+//  __IO uint32_t * data_bssr = &DATA_GPIO_Port->BSRR;
 
 //  uint8_t	out_data[32];
 //  uint8_t	in_data[32];
@@ -108,6 +121,8 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  zdi_loop();
+
 #if 0
 	  HAL_Delay(1);
 
@@ -133,6 +148,7 @@ int main(void)
 	  DATA_GPIO_Port->BSRR = DATA_Pin << 16U;
 #endif
 
+#if 0
 	  // HAL_Delay(1000);
 
 	  // HAL_GPIO_TogglePin(CLOCK_GPIO_Port, CLOCK_Pin);
@@ -195,6 +211,7 @@ int main(void)
 		  ;
 	  }
 	  *data_bssr = DATA_Pin;
+#endif
 
     /* USER CODE END WHILE */
 
@@ -227,9 +244,9 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = 25;
-  RCC_OscInitStruct.PLL.PLLN = 168;
-  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-  RCC_OscInitStruct.PLL.PLLQ = 4;
+  RCC_OscInitStruct.PLL.PLLN = 336;
+  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV4;
+  RCC_OscInitStruct.PLL.PLLQ = 7;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
