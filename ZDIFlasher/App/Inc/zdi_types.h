@@ -10,7 +10,7 @@
 
 #include <stdbool.h>
 
-#include "tim.h"
+#include "gpio.h"
 
 #define	ZDI_BUFFER_SIZE			8192
 
@@ -18,7 +18,6 @@ typedef struct zdi_handle_s {
 	bool				is_open;
 	bool				is_connected;
 	uint8_t				buffer[ZDI_BUFFER_SIZE];
-	TIM_HandleTypeDef	* pTimer;
 } ZDIHandle;
 
 typedef enum zdi_error_e {

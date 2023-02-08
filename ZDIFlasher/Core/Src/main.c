@@ -18,9 +18,6 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "dma.h"
-#include "spi.h"
-#include "tim.h"
 #include "usb_device.h"
 #include "gpio.h"
 
@@ -91,29 +88,13 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_DMA_Init();
-  MX_TIM11_Init();
-  MX_SPI1_Init();
   MX_USB_DEVICE_Init();
-  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
 
-//  HAL_TIM_PWM_Start(&htim11, TIM_CHANNEL_1);
-  HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_1);
-  HAL_TIM_OC_Start(&htim2, TIM_CHANNEL_2);
-
   zdi_init();
-  zdi_open(&zdi_handle, &htim2);
+  zdi_open(&zdi_handle);
 
   zdi_connect(&zdi_handle);
-
-//  __disable_irq();
-
-//  __IO uint32_t * clock_idr = &CLOCK_GPIO_Port->IDR;
-//  __IO uint32_t * data_bssr = &DATA_GPIO_Port->BSRR;
-
-//  uint8_t	out_data[32];
-//  uint8_t	in_data[32];
 
   /* USER CODE END 2 */
 
@@ -122,96 +103,6 @@ int main(void)
   while (1)
   {
 	  zdi_loop();
-
-#if 0
-	  HAL_Delay(1);
-
-	  out_data[0] = 0xAA;
-	  out_data[1] = 0x55;
-
-	  HAL_SPI_Transmit_DMA(&hspi1, out_data, 2);
-
-	  HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
-#endif
-
-#if 0
-	  while (htim11.Instance->CNT < 10) {
-		  ;
-	  }
-
-	  DATA_GPIO_Port->BSRR = DATA_Pin;
-
-	  while (htim11.Instance->CNT >= 10) {
-		  ;
-	  }
-
-	  DATA_GPIO_Port->BSRR = DATA_Pin << 16U;
-#endif
-
-#if 0
-	  // HAL_Delay(1000);
-
-	  // HAL_GPIO_TogglePin(CLOCK_GPIO_Port, CLOCK_Pin);
-
-	  // DATA_GPIO_Port->BSRR = DATA_Pin;
-	  // DATA_GPIO_Port->BSRR = DATA_Pin << 16U;
-
-	  HAL_Delay(1);
-
-	  while ((*clock_idr & CLOCK_Pin) != 0) {
-		  ;
-	  }
-
-	  while ((*clock_idr & CLOCK_Pin) == 0) {
-		  ;
-	  }
-	  *data_bssr = DATA_Pin << 16U;
-
-	  while ((*clock_idr & CLOCK_Pin) != 0) {
-		  ;
-	  }
-	  *data_bssr = DATA_Pin;
-
-	  while ((*clock_idr & CLOCK_Pin) == 0) {
-		  ;
-	  }
-	  *data_bssr = DATA_Pin << 16U;
-
-	  while ((*clock_idr & CLOCK_Pin) != 0) {
-		  ;
-	  }
-	  *data_bssr = DATA_Pin;
-
-	  while ((*clock_idr & CLOCK_Pin) == 0) {
-		  ;
-	  }
-	  *data_bssr = DATA_Pin << 16U;
-
-	  while ((*clock_idr & CLOCK_Pin) != 0) {
-		  ;
-	  }
-	  *data_bssr = DATA_Pin;
-
-	  while ((*clock_idr & CLOCK_Pin) == 0) {
-		  ;
-	  }
-	  *data_bssr = DATA_Pin << 16U;
-
-	  while ((*clock_idr & CLOCK_Pin) != 0) {
-		  ;
-	  }
-	  *data_bssr = DATA_Pin;
-
-	  while ((*clock_idr & CLOCK_Pin) == 0) {
-		  ;
-	  }
-	  *data_bssr = DATA_Pin << 16U;
-
-	  while ((*clock_idr & CLOCK_Pin) != 0) {
-		  ;
-	  }
-	  *data_bssr = DATA_Pin;
-#endif
 
     /* USER CODE END WHILE */
 

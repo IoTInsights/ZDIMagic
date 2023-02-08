@@ -13,7 +13,7 @@
 void zdi_init();
 void zdi_loop();
 
-ZDIError zdi_open(ZDIHandle * pHandle, TIM_HandleTypeDef * pTimer);
+ZDIError zdi_open(ZDIHandle * pHandle);
 ZDIError zdi_close(ZDIHandle * pHandle);
 
 ZDIError zdi_connect(ZDIHandle * pHandle);

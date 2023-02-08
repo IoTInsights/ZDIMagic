@@ -18,13 +18,12 @@ void zdi_loop()
 	zdi_driver_loop();
 }
 
-ZDIError zdi_open(ZDIHandle * pHandle, TIM_HandleTypeDef	* pTimer)
+ZDIError zdi_open(ZDIHandle * pHandle)
 {
 	ZDIError rc = E_OK;
 
 	pHandle->is_open = true;
 	pHandle->is_connected = false;
-	pHandle->pTimer = pTimer;
 
 	return rc;
 }
