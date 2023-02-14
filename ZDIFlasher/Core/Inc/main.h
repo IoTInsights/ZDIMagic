@@ -59,14 +59,12 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define LED_Pin GPIO_PIN_13
 #define LED_GPIO_Port GPIOC
-#define ZDI_CLOCK_Pin GPIO_PIN_0
-#define ZDI_CLOCK_GPIO_Port GPIOA
 #define ZDI_DATA_Pin GPIO_PIN_1
 #define ZDI_DATA_GPIO_Port GPIOA
-#define T2_DEBUG_Pin GPIO_PIN_2
-#define T2_DEBUG_GPIO_Port GPIOA
-#define RESET_Pin GPIO_PIN_7
-#define RESET_GPIO_Port GPIOB
+#define ZDI_RESET_Pin GPIO_PIN_2
+#define ZDI_RESET_GPIO_Port GPIOA
+#define ZDI_CLOCK_Pin GPIO_PIN_3
+#define ZDI_CLOCK_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
 

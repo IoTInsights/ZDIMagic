@@ -48,12 +48,27 @@ ZDIError zdi_connect(ZDIHandle * pHandle)
 		rc = E_OK;
 	}
 
-	if (pHandle->is_connected) {
+	if ((E_OK == rc) && (pHandle->is_connected)) {
 		rc = E_ErrorAlreadyConnected;
 	}
 
 	if ((E_OK == rc) && (pHandle->is_open)) {
 		rc = zdi_driver_connect(pHandle);
+	}
+
+	return rc;
+}
+
+ZDIError zdi_reset(ZDIHandle * pHandle)
+{
+	ZDIError rc = E_ErrorNotOpen;
+
+	if (pHandle->is_open) {
+		rc = E_OK;
+	}
+
+	if ((E_OK == rc) && (pHandle->is_open)) {
+		rc = zdi_driver_reset_target(pHandle);
 	}
 
 	return rc;

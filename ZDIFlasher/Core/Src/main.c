@@ -18,12 +18,14 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "usart.h"
 #include "usb_device.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "zdi.h"
+#include "app_button.h"
+#include "app_zdi.h"
 
 /* USER CODE END Includes */
 
@@ -44,8 +46,6 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
-ZDIHandle zdi_handle;
 
 /* USER CODE END PV */
 
@@ -89,12 +89,11 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USB_DEVICE_Init();
+  MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  zdi_init();
-  zdi_open(&zdi_handle);
-
-  zdi_connect(&zdi_handle);
+  app_button_init();
+  app_zdi_init();
 
   /* USER CODE END 2 */
 
@@ -102,14 +101,14 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  zdi_loop();
+	  app_button_loop();
+	  app_zdi_loop();
 
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
   }
 
-//  __enable_irq();
   /* USER CODE END 3 */
 }
 
@@ -159,6 +158,19 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+/**
+  * @brief  Retargets the C library printf function to the USART.
+  * @param  None
+  * @retval None
+  */
+int __io_putchar(int ch)
+{
+  /* Place your implementation of fputc here */
+  /* e.g. write a character to the USART1 and Loop until the end of transmission */
+  HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, 0xFFFF);
+
+  return ch;
+}
 
 /* USER CODE END 4 */
 

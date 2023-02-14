@@ -17,5 +17,7 @@ ZDIError zdi_open(ZDIHandle * pHandle);
 ZDIError zdi_close(ZDIHandle * pHandle);
 
 ZDIError zdi_connect(ZDIHandle * pHandle);
+ZDIError zdi_reset(ZDIHandle * pHandle);
+
 
 #endif /* INC_ZDI_H_ */
