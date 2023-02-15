@@ -11,7 +11,14 @@
 #include "zdi_driver.h"
 #include "zdi_timing.h"
 
-// #define DEBUG_PIN
+#define ZDI_CLOCK_HIGH			*bsrr = ZDI_CLOCK_Pin;
+#define	ZDI_CLOCK_LOW			*bsrr = (uint32_t)ZDI_CLOCK_Pin << 16U;
+
+#define ZDI_DATA_HIGH			*bsrr = ZDI_DATA_Pin;
+#define	ZDI_DATA_LOW			*bsrr = (uint32_t)ZDI_DATA_Pin << 16U;
+
+#define	ZDI_DATA_INPUT			*moder &= ~(GPIO_MODER_MODER1);
+#define	ZDI_DATA_OUTPUT			*moder |= GPIO_MODER_MODER1_0;
 
 void zdi_driver_init()
 {
@@ -32,11 +39,8 @@ ZDIError zdi_driver_connect(ZDIHandle * pHandle)
 	uint8_t id_h = 0;
 	uint8_t id_rev = 0;
 
-	printf("Reading ID Register\n");
-
 	rc = zdi_driver_read_register(pHandle, ZDI_ID_L, &id_l);
 
-#if 0
 	if (E_OK == rc) {
 		rc = zdi_driver_read_register(pHandle, ZDI_ID_H, &id_h);
 	}
@@ -44,7 +48,12 @@ ZDIError zdi_driver_connect(ZDIHandle * pHandle)
 	if (E_OK == rc) {
 		rc = zdi_driver_read_register(pHandle, ZDI_ID_REV, &id_rev);
 	}
-#endif
+
+	if (E_OK == rc) {
+		pHandle->id_l = id_l;
+		pHandle->id_h = id_h;
+		pHandle->id_rev = id_rev;
+	}
 
 	return rc;
 }
@@ -60,27 +69,14 @@ ZDIError zdi_driver_reset_target(ZDIHandle * pHandle)
 	return rc;
 }
 
-#define ZDI_CLOCK_HIGH			*bsrr = ZDI_CLOCK_Pin;
-#define	ZDI_CLOCK_LOW			*bsrr = (uint32_t)ZDI_CLOCK_Pin << 16U;
-
-#define ZDI_DATA_HIGH			*bsrr = ZDI_DATA_Pin;
-#define	ZDI_DATA_LOW			*bsrr = (uint32_t)ZDI_DATA_Pin << 16U;
-
-#define	ZDI_DATA_INPUT			*moder &= ~(GPIO_MODER_MODER1);
-#define	ZDI_DATA_OUTPUT			*moder |= GPIO_MODER_MODER1_0;
-
 ZDIError zdi_driver_read_register(ZDIHandle * pHandle, uint8_t address, uint8_t * pValue)
 {
 	ZDIError rc = E_OK;
 
 	__disable_irq();
 
-	uint32_t destdata[16];
-	for (int i = 0; i < 16; i++) {
-		destdata[i] = 0;
-	}
-
-	uint32_t * dest_ptr = destdata;
+	uint8_t bit_mask = 0x40;
+	uint8_t result = 0;
 
 	__IO uint32_t * idr = & ZDI_DATA_GPIO_Port->IDR;
 	__IO uint32_t * bsrr = & ZDI_CLOCK_GPIO_Port->BSRR;
@@ -89,30 +85,30 @@ ZDIError zdi_driver_read_register(ZDIHandle * pHandle, uint8_t address, uint8_t 
 //      Base Signal: Clock Low, Data High
 /**************************************************************************************/
 
-	ZDI_CLOCK_LOW
+	ZDI_CLOCK_HIGH
 	ZDI_DATA_HIGH
 
 //      Start Signal
 /**************************************************************************************/
-	ZDI_DATA_HIGH
-
-	NOP_CLOCK_20
-	ZDI_CLOCK_HIGH
-	NOP_CLOCK_10
-
 	ZDI_DATA_LOW
-	NOP_CLOCK_10
+	NOP_CLOCK_20
 
 //      Bit 6
 /**************************************************************************************/
 	ZDI_CLOCK_LOW
 	NOP_CLOCK_10
 
-	ZDI_DATA_LOW						// Or High, depends
-	NOP_CLOCK_10
+	if (address & bit_mask) {
+		ZDI_DATA_HIGH
+	}
+	else {
+		ZDI_DATA_LOW
+	}
+	bit_mask = bit_mask >> 1;
+
+	NOP_CLOCK_6
 
 	ZDI_CLOCK_HIGH
-
 	NOP_CLOCK_20
 
 //      Bit 5
@@ -120,11 +116,17 @@ ZDIError zdi_driver_read_register(ZDIHandle * pHandle, uint8_t address, uint8_t 
 	ZDI_CLOCK_LOW
 	NOP_CLOCK_10
 
-	ZDI_DATA_LOW						// Or High, depends
-	NOP_CLOCK_10
+	if (address & bit_mask) {
+		ZDI_DATA_HIGH
+	}
+	else {
+		ZDI_DATA_LOW
+	}
+	bit_mask = bit_mask >> 1;
+
+	NOP_CLOCK_6
 
 	ZDI_CLOCK_HIGH
-
 	NOP_CLOCK_20
 
 //      Bit 4
@@ -132,11 +134,17 @@ ZDIError zdi_driver_read_register(ZDIHandle * pHandle, uint8_t address, uint8_t 
 	ZDI_CLOCK_LOW
 	NOP_CLOCK_10
 
-	ZDI_DATA_LOW						// Or High, depends
-	NOP_CLOCK_10
+	if (address & bit_mask) {
+		ZDI_DATA_HIGH
+	}
+	else {
+		ZDI_DATA_LOW
+	}
+	bit_mask = bit_mask >> 1;
+
+	NOP_CLOCK_6
 
 	ZDI_CLOCK_HIGH
-
 	NOP_CLOCK_20
 
 //      Bit 3
@@ -144,11 +152,17 @@ ZDIError zdi_driver_read_register(ZDIHandle * pHandle, uint8_t address, uint8_t 
 	ZDI_CLOCK_LOW
 	NOP_CLOCK_10
 
-	ZDI_DATA_LOW						// Or High, depends
-	NOP_CLOCK_10
+	if (address & bit_mask) {
+		ZDI_DATA_HIGH
+	}
+	else {
+		ZDI_DATA_LOW
+	}
+	bit_mask = bit_mask >> 1;
+
+	NOP_CLOCK_6
 
 	ZDI_CLOCK_HIGH
-
 	NOP_CLOCK_20
 
 //      Bit 2
@@ -156,11 +170,17 @@ ZDIError zdi_driver_read_register(ZDIHandle * pHandle, uint8_t address, uint8_t 
 	ZDI_CLOCK_LOW
 	NOP_CLOCK_10
 
-	ZDI_DATA_LOW						// Or High, depends
-	NOP_CLOCK_10
+	if (address & bit_mask) {
+		ZDI_DATA_HIGH
+	}
+	else {
+		ZDI_DATA_LOW
+	}
+	bit_mask = bit_mask >> 1;
+
+	NOP_CLOCK_6
 
 	ZDI_CLOCK_HIGH
-
 	NOP_CLOCK_20
 
 //      Bit 1
@@ -168,11 +188,17 @@ ZDIError zdi_driver_read_register(ZDIHandle * pHandle, uint8_t address, uint8_t 
 	ZDI_CLOCK_LOW
 	NOP_CLOCK_10
 
-	ZDI_DATA_HIGH						// Or High, depends
-	NOP_CLOCK_10
+	if (address & bit_mask) {
+		ZDI_DATA_HIGH
+	}
+	else {
+		ZDI_DATA_LOW
+	}
+	bit_mask = bit_mask >> 1;
+
+	NOP_CLOCK_6
 
 	ZDI_CLOCK_HIGH
-
 	NOP_CLOCK_20
 
 //      Bit 0
@@ -180,11 +206,17 @@ ZDIError zdi_driver_read_register(ZDIHandle * pHandle, uint8_t address, uint8_t 
 	ZDI_CLOCK_LOW
 	NOP_CLOCK_10
 
-	ZDI_DATA_LOW						// Or High, depends
-	NOP_CLOCK_10
+	if (address & bit_mask) {
+		ZDI_DATA_HIGH
+	}
+	else {
+		ZDI_DATA_LOW
+	}
+	bit_mask = bit_mask >> 1;
+
+	NOP_CLOCK_6
 
 	ZDI_CLOCK_HIGH
-
 	NOP_CLOCK_20
 
 //      Bit R/W
@@ -196,7 +228,6 @@ ZDIError zdi_driver_read_register(ZDIHandle * pHandle, uint8_t address, uint8_t 
 	NOP_CLOCK_10
 
 	ZDI_CLOCK_HIGH
-
 	NOP_CLOCK_20
 
 //      Bit Separator
@@ -208,7 +239,6 @@ ZDIError zdi_driver_read_register(ZDIHandle * pHandle, uint8_t address, uint8_t 
 	NOP_CLOCK_10
 
 	ZDI_CLOCK_HIGH
-
 	NOP_CLOCK_20
 
 //      Read Data
@@ -217,13 +247,22 @@ ZDIError zdi_driver_read_register(ZDIHandle * pHandle, uint8_t address, uint8_t 
 //      Bit 7 Read
 /**************************************************************************************/
 	ZDI_CLOCK_LOW
-	NOP_CLOCK_10
-
 	ZDI_DATA_INPUT
-	NOP_CLOCK_10
+	NOP_CLOCK_9
+	bit_mask = 0x80;
+
+	//ZDI_DATA_INPUT
+	if ((*idr & ZDI_DATA_Pin) != 0) {
+		result |= bit_mask;
+	}
+	else {
+		NOP_CLOCK_1
+	}
+	bit_mask = bit_mask >> 1;
+
+	NOP_CLOCK_6
 
 	ZDI_CLOCK_HIGH
-
 	NOP_CLOCK_20
 
 //      Bit 6 Read
@@ -231,11 +270,18 @@ ZDIError zdi_driver_read_register(ZDIHandle * pHandle, uint8_t address, uint8_t 
 	ZDI_CLOCK_LOW
 	NOP_CLOCK_10
 
-	// ZDI_DATA_INPUT
-	NOP_CLOCK_10
+	//ZDI_DATA_INPUT
+	if ((*idr & ZDI_DATA_Pin) != 0) {
+		result |= bit_mask;
+	}
+	else {
+		NOP_CLOCK_1
+	}
+	bit_mask = bit_mask >> 1;
+
+	NOP_CLOCK_6
 
 	ZDI_CLOCK_HIGH
-
 	NOP_CLOCK_20
 
 //      Bit 5 Read
@@ -244,10 +290,17 @@ ZDIError zdi_driver_read_register(ZDIHandle * pHandle, uint8_t address, uint8_t 
 	NOP_CLOCK_10
 
 	//ZDI_DATA_INPUT
-	NOP_CLOCK_10
+	if ((*idr & ZDI_DATA_Pin) != 0) {
+		result |= bit_mask;
+	}
+	else {
+		NOP_CLOCK_1
+	}
+	bit_mask = bit_mask >> 1;
+
+	NOP_CLOCK_6
 
 	ZDI_CLOCK_HIGH
-
 	NOP_CLOCK_20
 
 //      Bit 4 Read
@@ -255,11 +308,18 @@ ZDIError zdi_driver_read_register(ZDIHandle * pHandle, uint8_t address, uint8_t 
 	ZDI_CLOCK_LOW
 	NOP_CLOCK_10
 
-	// ZDI_DATA_INPUT
-	NOP_CLOCK_10
+	//ZDI_DATA_INPUT
+	if ((*idr & ZDI_DATA_Pin) != 0) {
+		result |= bit_mask;
+	}
+	else {
+		NOP_CLOCK_1
+	}
+	bit_mask = bit_mask >> 1;
+
+	NOP_CLOCK_6
 
 	ZDI_CLOCK_HIGH
-
 	NOP_CLOCK_20
 
 //      Bit 3 Read
@@ -267,11 +327,18 @@ ZDIError zdi_driver_read_register(ZDIHandle * pHandle, uint8_t address, uint8_t 
 	ZDI_CLOCK_LOW
 	NOP_CLOCK_10
 
-	// ZDI_DATA_INPUT
-	NOP_CLOCK_10
+	//ZDI_DATA_INPUT
+	if ((*idr & ZDI_DATA_Pin) != 0) {
+		result |= bit_mask;
+	}
+	else {
+		NOP_CLOCK_1
+	}
+	bit_mask = bit_mask >> 1;
+
+	NOP_CLOCK_6
 
 	ZDI_CLOCK_HIGH
-
 	NOP_CLOCK_20
 
 //      Bit 2 Read
@@ -279,11 +346,18 @@ ZDIError zdi_driver_read_register(ZDIHandle * pHandle, uint8_t address, uint8_t 
 	ZDI_CLOCK_LOW
 	NOP_CLOCK_10
 
-	// ZDI_DATA_INPUT
-	NOP_CLOCK_10
+	//ZDI_DATA_INPUT
+	if ((*idr & ZDI_DATA_Pin) != 0) {
+		result |= bit_mask;
+	}
+	else {
+		NOP_CLOCK_1
+	}
+	bit_mask = bit_mask >> 1;
+
+	NOP_CLOCK_6
 
 	ZDI_CLOCK_HIGH
-
 	NOP_CLOCK_20
 
 //      Bit 1 Read
@@ -291,11 +365,18 @@ ZDIError zdi_driver_read_register(ZDIHandle * pHandle, uint8_t address, uint8_t 
 	ZDI_CLOCK_LOW
 	NOP_CLOCK_10
 
-	// ZDI_DATA_INPUT
-	NOP_CLOCK_10
+	//ZDI_DATA_INPUT
+	if ((*idr & ZDI_DATA_Pin) != 0) {
+		result |= bit_mask;
+	}
+	else {
+		NOP_CLOCK_1
+	}
+	bit_mask = bit_mask >> 1;
+
+	NOP_CLOCK_6
 
 	ZDI_CLOCK_HIGH
-
 	NOP_CLOCK_20
 
 //      Bit 0 Read
@@ -303,11 +384,18 @@ ZDIError zdi_driver_read_register(ZDIHandle * pHandle, uint8_t address, uint8_t 
 	ZDI_CLOCK_LOW
 	NOP_CLOCK_10
 
-	// ZDI_DATA_INPUT
-	NOP_CLOCK_10
+	//ZDI_DATA_INPUT
+	if ((*idr & ZDI_DATA_Pin) != 0) {
+		result |= bit_mask;
+	}
+	else {
+		NOP_CLOCK_1
+	}
+	bit_mask = bit_mask >> 1;
+
+	NOP_CLOCK_6
 
 	ZDI_CLOCK_HIGH
-
 	NOP_CLOCK_20
 
 //      Bit End Condition
@@ -321,13 +409,10 @@ ZDIError zdi_driver_read_register(ZDIHandle * pHandle, uint8_t address, uint8_t 
 	NOP_CLOCK_10
 
 	ZDI_CLOCK_HIGH
-
 	NOP_CLOCK_20
 	__enable_irq();
 
-//	for (int i = 0; i < 16; i++) {
-//		printf("data[%d] = 0x%lx\n", i, destdata[i]);
-//	}
+	*pValue = result;
 
 	return rc;
 }

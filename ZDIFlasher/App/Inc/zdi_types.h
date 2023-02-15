@@ -12,11 +12,20 @@
 
 #include "gpio.h"
 
+#define	ZDI_VERSION_DATE		"2022-02-15"
+
+#define	ZDI_VERSION_MAJOR		0
+#define	ZDI_VERSION_MINOR		7
+#define ZDI_VERSION_PATCH		0
+
 #define	ZDI_BUFFER_SIZE			8192
 
 typedef struct zdi_handle_s {
 	bool				is_open;
 	bool				is_connected;
+	uint8_t 			id_l;
+	uint8_t 			id_h;
+	uint8_t 			id_rev;
 	uint8_t				buffer[ZDI_BUFFER_SIZE];
 } ZDIHandle;
 

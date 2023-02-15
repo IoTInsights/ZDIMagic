@@ -6,6 +6,7 @@
  */
 
 #include <stdbool.h>
+#include <stdio.h>
 
 #include "gpio.h"
 
@@ -25,6 +26,7 @@ void app_button_loop()
 		button_pressed = false;
 
 		HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+
 		app_zdi_connect();
 	}
 }
