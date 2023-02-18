@@ -13,6 +13,7 @@
 void app_zdi_init();
 void app_zdi_loop();
 
-ZDIError app_zdi_connect();
+ZDIError app_zdi_open();
+ZDIError app_zdi_testing();
 
 #endif /* INC_APP_ZDI_H_ */

@@ -27,7 +27,7 @@ void app_button_loop()
 
 		HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
 
-		app_zdi_connect();
+		// app_zdi_testing();
 	}
 }
 

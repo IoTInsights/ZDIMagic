@@ -31,48 +31,22 @@ void zdi_driver_loop()
 {
 }
 
-ZDIError zdi_driver_connect(ZDIHandle * pHandle)
+void zdi_driver_open(ZDIHandle * pHandle)
 {
-	ZDIError rc = E_OK;
-
-	uint8_t id_l = 0;
-	uint8_t id_h = 0;
-	uint8_t id_rev = 0;
-
-	rc = zdi_driver_read_register(pHandle, ZDI_ID_L, &id_l);
-
-	if (E_OK == rc) {
-		rc = zdi_driver_read_register(pHandle, ZDI_ID_H, &id_h);
-	}
-
-	if (E_OK == rc) {
-		rc = zdi_driver_read_register(pHandle, ZDI_ID_REV, &id_rev);
-	}
-
-	if (E_OK == rc) {
-		pHandle->id_l = id_l;
-		pHandle->id_h = id_h;
-		pHandle->id_rev = id_rev;
-	}
-
-	return rc;
+	zdi_driver_read_register(pHandle, ZDI_ID_L, &pHandle->id_l);
+	zdi_driver_read_register(pHandle, ZDI_ID_H, &pHandle->id_h);
+	zdi_driver_read_register(pHandle, ZDI_ID_REV, &pHandle->id_rev);
 }
 
-ZDIError zdi_driver_reset_target(ZDIHandle * pHandle)
+void zdi_driver_reset_target(ZDIHandle * pHandle)
 {
-	ZDIError rc = E_OK;
-
 	HAL_GPIO_WritePin(ZDI_RESET_GPIO_Port, ZDI_RESET_Pin, GPIO_PIN_RESET);
 	HAL_Delay(10);
 	HAL_GPIO_WritePin(ZDI_RESET_GPIO_Port, ZDI_RESET_Pin, GPIO_PIN_SET);
-
-	return rc;
 }
 
-ZDIError zdi_driver_read_register(ZDIHandle * pHandle, uint8_t address, uint8_t * pValue)
+void zdi_driver_read_register(ZDIHandle * pHandle, uint8_t address, uint8_t * pValue)
 {
-	ZDIError rc = E_OK;
-
 	__disable_irq();
 
 	uint8_t bit_mask = 0x40;
@@ -413,13 +387,335 @@ ZDIError zdi_driver_read_register(ZDIHandle * pHandle, uint8_t address, uint8_t 
 	__enable_irq();
 
 	*pValue = result;
-
-	return rc;
 }
 
-ZDIError zdi_driver_write_register(ZDIHandle * pHandle, uint8_t address, uint8_t value)
+void zdi_driver_write_register(ZDIHandle * pHandle, uint8_t address, uint8_t value)
 {
-	ZDIError rc = E_OK;
+	__disable_irq();
 
-	return rc;
+	uint8_t bit_mask = 0x40;
+
+	__IO uint32_t * bsrr = & ZDI_CLOCK_GPIO_Port->BSRR;
+	__IO uint32_t * moder = & ZDI_CLOCK_GPIO_Port->MODER;
+
+//      Base Signal: Clock Low, Data High
+/**************************************************************************************/
+
+	ZDI_CLOCK_HIGH
+	ZDI_DATA_HIGH
+
+//      Start Signal
+/**************************************************************************************/
+	ZDI_DATA_LOW
+	NOP_CLOCK_20
+
+//      Bit 6
+/**************************************************************************************/
+	ZDI_CLOCK_LOW
+	NOP_CLOCK_10
+
+	if (address & bit_mask) {
+		ZDI_DATA_HIGH
+	}
+	else {
+		ZDI_DATA_LOW
+	}
+	bit_mask = bit_mask >> 1;
+
+	NOP_CLOCK_6
+
+	ZDI_CLOCK_HIGH
+	NOP_CLOCK_20
+
+//      Bit 5
+/**************************************************************************************/
+	ZDI_CLOCK_LOW
+	NOP_CLOCK_10
+
+	if (address & bit_mask) {
+		ZDI_DATA_HIGH
+	}
+	else {
+		ZDI_DATA_LOW
+	}
+	bit_mask = bit_mask >> 1;
+
+	NOP_CLOCK_6
+
+	ZDI_CLOCK_HIGH
+	NOP_CLOCK_20
+
+//      Bit 4
+/**************************************************************************************/
+	ZDI_CLOCK_LOW
+	NOP_CLOCK_10
+
+	if (address & bit_mask) {
+		ZDI_DATA_HIGH
+	}
+	else {
+		ZDI_DATA_LOW
+	}
+	bit_mask = bit_mask >> 1;
+
+	NOP_CLOCK_6
+
+	ZDI_CLOCK_HIGH
+	NOP_CLOCK_20
+
+//      Bit 3
+/**************************************************************************************/
+	ZDI_CLOCK_LOW
+	NOP_CLOCK_10
+
+	if (address & bit_mask) {
+		ZDI_DATA_HIGH
+	}
+	else {
+		ZDI_DATA_LOW
+	}
+	bit_mask = bit_mask >> 1;
+
+	NOP_CLOCK_6
+
+	ZDI_CLOCK_HIGH
+	NOP_CLOCK_20
+
+//      Bit 2
+/**************************************************************************************/
+	ZDI_CLOCK_LOW
+	NOP_CLOCK_10
+
+	if (address & bit_mask) {
+		ZDI_DATA_HIGH
+	}
+	else {
+		ZDI_DATA_LOW
+	}
+	bit_mask = bit_mask >> 1;
+
+	NOP_CLOCK_6
+
+	ZDI_CLOCK_HIGH
+	NOP_CLOCK_20
+
+//      Bit 1
+/**************************************************************************************/
+	ZDI_CLOCK_LOW
+	NOP_CLOCK_10
+
+	if (address & bit_mask) {
+		ZDI_DATA_HIGH
+	}
+	else {
+		ZDI_DATA_LOW
+	}
+	bit_mask = bit_mask >> 1;
+
+	NOP_CLOCK_6
+
+	ZDI_CLOCK_HIGH
+	NOP_CLOCK_20
+
+//      Bit 0
+/**************************************************************************************/
+	ZDI_CLOCK_LOW
+	NOP_CLOCK_10
+
+	if (address & bit_mask) {
+		ZDI_DATA_HIGH
+	}
+	else {
+		ZDI_DATA_LOW
+	}
+	bit_mask = bit_mask >> 1;
+
+	NOP_CLOCK_6
+
+	ZDI_CLOCK_HIGH
+	NOP_CLOCK_20
+
+//      Bit R/W
+/**************************************************************************************/
+	ZDI_CLOCK_LOW
+	NOP_CLOCK_10
+
+	ZDI_DATA_LOW						// Data Low = Write
+	NOP_CLOCK_10
+
+	ZDI_CLOCK_HIGH
+	NOP_CLOCK_20
+
+//      Bit Separator
+/**************************************************************************************/
+	ZDI_CLOCK_LOW
+	NOP_CLOCK_10
+
+	ZDI_DATA_LOW
+	NOP_CLOCK_10
+
+	ZDI_CLOCK_HIGH
+	NOP_CLOCK_20
+
+//      Read Data
+/**************************************************************************************/
+
+//      Bit 7 Write
+/**************************************************************************************/
+	ZDI_CLOCK_LOW
+	NOP_CLOCK_10
+	bit_mask = 0x80;
+
+	if (value & bit_mask) {
+		ZDI_DATA_HIGH
+	}
+	else {
+		ZDI_DATA_LOW
+	}
+	bit_mask = bit_mask >> 1;
+
+	NOP_CLOCK_6
+
+	ZDI_CLOCK_HIGH
+	NOP_CLOCK_20
+
+//      Bit 6 Write
+/**************************************************************************************/
+	ZDI_CLOCK_LOW
+	NOP_CLOCK_10
+
+	if (value & bit_mask) {
+		ZDI_DATA_HIGH
+	}
+	else {
+		ZDI_DATA_LOW
+	}
+	bit_mask = bit_mask >> 1;
+
+	NOP_CLOCK_6
+
+	ZDI_CLOCK_HIGH
+	NOP_CLOCK_20
+
+//      Bit 5 Write
+/**************************************************************************************/
+	ZDI_CLOCK_LOW
+	NOP_CLOCK_10
+
+	if (value & bit_mask) {
+		ZDI_DATA_HIGH
+	}
+	else {
+		ZDI_DATA_LOW
+	}
+	bit_mask = bit_mask >> 1;
+
+	NOP_CLOCK_6
+
+	ZDI_CLOCK_HIGH
+	NOP_CLOCK_20
+
+//      Bit 4 Write
+/**************************************************************************************/
+	ZDI_CLOCK_LOW
+	NOP_CLOCK_10
+
+	if (value & bit_mask) {
+		ZDI_DATA_HIGH
+	}
+	else {
+		ZDI_DATA_LOW
+	}
+	bit_mask = bit_mask >> 1;
+
+	NOP_CLOCK_6
+
+	ZDI_CLOCK_HIGH
+	NOP_CLOCK_20
+
+//      Bit 3 Write
+/**************************************************************************************/
+	ZDI_CLOCK_LOW
+	NOP_CLOCK_10
+
+	if (value & bit_mask) {
+		ZDI_DATA_HIGH
+	}
+	else {
+		ZDI_DATA_LOW
+	}
+	bit_mask = bit_mask >> 1;
+
+	NOP_CLOCK_6
+
+	ZDI_CLOCK_HIGH
+	NOP_CLOCK_20
+
+//      Bit 2 Write
+/**************************************************************************************/
+	ZDI_CLOCK_LOW
+	NOP_CLOCK_10
+
+	if (value & bit_mask) {
+		ZDI_DATA_HIGH
+	}
+	else {
+		ZDI_DATA_LOW
+	}
+	bit_mask = bit_mask >> 1;
+
+	NOP_CLOCK_6
+
+	ZDI_CLOCK_HIGH
+	NOP_CLOCK_20
+
+//      Bit 1 Write
+/**************************************************************************************/
+	ZDI_CLOCK_LOW
+	NOP_CLOCK_10
+
+	if (value & bit_mask) {
+		ZDI_DATA_HIGH
+	}
+	else {
+		ZDI_DATA_LOW
+	}
+	bit_mask = bit_mask >> 1;
+
+	NOP_CLOCK_6
+
+	ZDI_CLOCK_HIGH
+	NOP_CLOCK_20
+
+//      Bit 0 Write
+/**************************************************************************************/
+	ZDI_CLOCK_LOW
+	NOP_CLOCK_10
+
+	if (value & bit_mask) {
+		ZDI_DATA_HIGH
+	}
+	else {
+		ZDI_DATA_LOW
+	}
+	bit_mask = bit_mask >> 1;
+
+	NOP_CLOCK_6
+
+	ZDI_CLOCK_HIGH
+	NOP_CLOCK_20
+
+//      Bit End Condition
+/**************************************************************************************/
+	ZDI_CLOCK_LOW
+	NOP_CLOCK_10
+
+	ZDI_DATA_OUTPUT
+	ZDI_DATA_HIGH
+
+	NOP_CLOCK_10
+
+	ZDI_CLOCK_HIGH
+	NOP_CLOCK_20
+	__enable_irq();
 }
