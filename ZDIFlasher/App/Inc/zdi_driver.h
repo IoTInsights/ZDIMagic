@@ -16,7 +16,7 @@ void zdi_driver_loop();
 void zdi_driver_open(ZDIHandle * pHandle);
 
 void zdi_driver_reset_target(ZDIHandle * pHandle);
-void zdi_driver_read_register(ZDIHandle * pHandle, uint8_t address, uint8_t * pValue);
+uint8_t zdi_driver_read_register(ZDIHandle * pHandle, uint8_t address);
 void zdi_driver_write_register(ZDIHandle * pHandle, uint8_t address, uint8_t value);
 
 #endif /* INC_ZDI_DRIVER_H_ */

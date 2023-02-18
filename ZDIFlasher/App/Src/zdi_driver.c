@@ -33,9 +33,9 @@ void zdi_driver_loop()
 
 void zdi_driver_open(ZDIHandle * pHandle)
 {
-	zdi_driver_read_register(pHandle, ZDI_ID_L, &pHandle->id_l);
-	zdi_driver_read_register(pHandle, ZDI_ID_H, &pHandle->id_h);
-	zdi_driver_read_register(pHandle, ZDI_ID_REV, &pHandle->id_rev);
+	pHandle->id_l = zdi_driver_read_register(pHandle, ZDI_ID_L);
+	pHandle->id_h = zdi_driver_read_register(pHandle, ZDI_ID_H);
+	pHandle->id_rev = zdi_driver_read_register(pHandle, ZDI_ID_REV);
 }
 
 void zdi_driver_reset_target(ZDIHandle * pHandle)
@@ -45,7 +45,7 @@ void zdi_driver_reset_target(ZDIHandle * pHandle)
 	HAL_GPIO_WritePin(ZDI_RESET_GPIO_Port, ZDI_RESET_Pin, GPIO_PIN_SET);
 }
 
-void zdi_driver_read_register(ZDIHandle * pHandle, uint8_t address, uint8_t * pValue)
+uint8_t zdi_driver_read_register(ZDIHandle * pHandle, uint8_t address)
 {
 	__disable_irq();
 
@@ -386,7 +386,7 @@ void zdi_driver_read_register(ZDIHandle * pHandle, uint8_t address, uint8_t * pV
 	NOP_CLOCK_20
 	__enable_irq();
 
-	*pValue = result;
+	return result;
 }
 
 void zdi_driver_write_register(ZDIHandle * pHandle, uint8_t address, uint8_t value)

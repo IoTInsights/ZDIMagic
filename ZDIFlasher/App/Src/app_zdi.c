@@ -58,7 +58,7 @@ ZDIError app_zdi_testing()
 
 	printf("Status Register=     0x%02x\n", zdi_handle.zdi_status);
 
-	zdi_read_bus_status_register(&zdi_handle, &StatusRegister);
+	StatusRegister = zdi_read_bus_status_register(&zdi_handle);
 	printf("Bus Status Register= 0x%02x\n", StatusRegister);
 
 	printf("Activate ZDI\n");

@@ -25,23 +25,23 @@ void zdi_reset_soft(ZDIHandle * pHandle);
 void zdi_break_next(ZDIHandle * pHandle);
 void zdi_break_release(ZDIHandle * pHandle);
 
-void zdi_read_status_register(ZDIHandle * pHandle, uint8_t * pStatusRegister);
-void zdi_read_bus_status_register(ZDIHandle * pHandle, uint8_t * pBusStatusRegister);
+uint8_t zdi_read_status_register(ZDIHandle * pHandle);
+uint8_t zdi_read_bus_status_register(ZDIHandle * pHandle);
 
-void zdi_read_memory_address_register(ZDIHandle * pHandle, uint8_t ReadCtl, uint32_t * pValue);
-void zdi_read_memory_data_register(ZDIHandle * pHandle, uint8_t * pMemoryData);
+uint32_t zdi_read_memory_address_register(ZDIHandle * pHandle, uint8_t ReadCtl);
+uint8_t zdi_read_memory_data_register(ZDIHandle * pHandle);
 
 void zdi_write_memory_address_register(ZDIHandle * pHandle, uint8_t ReadCtl, uint32_t Value);
 void zdi_write_memory_data_register(ZDIHandle * pHandle, uint8_t MemoryData);
 
-void zdi_read_AF(ZDIHandle * pHandle, uint32_t * pValue);
-void zdi_read_BC(ZDIHandle * pHandle, uint32_t * pValue);
-void zdi_read_DE(ZDIHandle * pHandle, uint32_t * pValue);
-void zdi_read_HL(ZDIHandle * pHandle, uint32_t * pValue);
-void zdi_read_IX(ZDIHandle * pHandle, uint32_t * pValue);
-void zdi_read_IY(ZDIHandle * pHandle, uint32_t * pValue);
-void zdi_read_SP(ZDIHandle * pHandle, uint32_t * pValue);
-void zdi_read_PC(ZDIHandle * pHandle, uint32_t * pValue);
+uint32_t zdi_read_AF(ZDIHandle * pHandle);
+uint32_t zdi_read_BC(ZDIHandle * pHandle);
+uint32_t zdi_read_DE(ZDIHandle * pHandle);
+uint32_t zdi_read_HL(ZDIHandle * pHandle);
+uint32_t zdi_read_IX(ZDIHandle * pHandle);
+uint32_t zdi_read_IY(ZDIHandle * pHandle);
+uint32_t zdi_read_SP(ZDIHandle * pHandle);
+uint32_t zdi_read_PC(ZDIHandle * pHandle);
 
 void zdi_write_AF(ZDIHandle * pHandle, uint32_t Value);
 void zdi_write_BC(ZDIHandle * pHandle, uint32_t Value);

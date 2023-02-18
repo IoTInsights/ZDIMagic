@@ -61,7 +61,7 @@ ZDIError zdi_open(ZDIHandle * pHandle)
 	}
 
 	if (E_OK == rc) {
-		zdi_read_status_register(pHandle, &pHandle->zdi_status);
+		pHandle->zdi_status = zdi_read_status_register(pHandle);
 
 		if ((pHandle->zdi_status & ZDI_STAT_ZDI_ACTIVE) != 0) {
 			pHandle->is_zdi_active = true;
@@ -89,12 +89,12 @@ ZDIError zdi_activate_zdi(ZDIHandle * pHandle)
 
 		while (!pHandle->is_zdi_active && (max_tries--)) {
 			zdi_break_next(pHandle);
-			zdi_read_status_register(pHandle, &pHandle->zdi_status);
+			pHandle->zdi_status = zdi_read_status_register(pHandle);
 
 			if ((pHandle->zdi_status & ZDI_STAT_ZDI_ACTIVE) != 0) {
 				pHandle->is_zdi_active = true;
 
-				zdi_read_PC(pHandle, &pHandle->pc);
+				pHandle->pc = zdi_read_PC(pHandle);
 			}
 		}
 	}
@@ -116,7 +116,7 @@ ZDIError zdi_deactivate_zdi(ZDIHandle * pHandle)
 
 		while (pHandle->is_zdi_active && (max_tries--)) {
 			zdi_break_release(pHandle);
-			zdi_read_status_register(pHandle, &pHandle->zdi_status);
+			pHandle->zdi_status = zdi_read_status_register(pHandle);
 
 			if ((pHandle->zdi_status & ZDI_STAT_ZDI_ACTIVE) == 0) {
 				pHandle->is_zdi_active = false;
@@ -149,42 +149,44 @@ void zdi_break_release(ZDIHandle * pHandle)
 	zdi_driver_write_register(pHandle, ZDI_BRK_CTL, 0x00);
 }
 
-void zdi_read_status_register(ZDIHandle * pHandle, uint8_t * pStatusRegister)
+uint8_t zdi_read_status_register(ZDIHandle * pHandle)
 {
-	zdi_driver_read_register(pHandle, ZDI_STAT, pStatusRegister);
+	return zdi_driver_read_register(pHandle, ZDI_STAT);
 }
 
-void zdi_read_memory_address_register(ZDIHandle * pHandle, uint8_t ReadCtl, uint32_t * pValue)
+uint32_t zdi_read_memory_address_register(ZDIHandle * pHandle, uint8_t ReadCtl)
 {
 	uint8_t LowByte;
 	uint8_t HighByte;
 	uint8_t UpperByte;
 
-	*pValue = 0;
+	uint32_t result  = 0;
 
 	zdi_driver_write_register(pHandle, ZDI_RW_CTL, ReadCtl);
 
-	zdi_driver_read_register(pHandle, ZDI_RD_L, &LowByte);
-	zdi_driver_read_register(pHandle, ZDI_RD_H, &HighByte);
-	zdi_driver_read_register(pHandle, ZDI_RD_U, &UpperByte);
+	LowByte = zdi_driver_read_register(pHandle, ZDI_RD_L);
+	HighByte = zdi_driver_read_register(pHandle, ZDI_RD_H);
+	UpperByte = zdi_driver_read_register(pHandle, ZDI_RD_U);
 
-	*pValue = UpperByte;
-	*pValue = *pValue << 8;
+	result = UpperByte;
+	result = result << 8;
 
-	*pValue += HighByte;
-	*pValue = *pValue << 8;
+	result += HighByte;
+	result = result << 8;
 
-	*pValue += LowByte;
+	result += LowByte;
+
+	return result;
 }
 
-void zdi_read_bus_status_register(ZDIHandle * pHandle, uint8_t * pBusStatusRegister)
+uint8_t zdi_read_bus_status_register(ZDIHandle * pHandle)
 {
-	zdi_driver_read_register(pHandle, ZDI_BUS_STAT, pBusStatusRegister);
+	return zdi_driver_read_register(pHandle, ZDI_BUS_STAT);
 }
 
-void zdi_read_memory_data_register(ZDIHandle * pHandle, uint8_t * pMemoryData)
+uint8_t zdi_read_memory_data_register(ZDIHandle * pHandle)
 {
-	zdi_driver_read_register(pHandle, ZDI_RD_MEM, pMemoryData);
+	return zdi_driver_read_register(pHandle, ZDI_RD_MEM);
 }
 
 void zdi_write_memory_address_register(ZDIHandle * pHandle, uint8_t ReadCtl, uint32_t Value)
@@ -211,44 +213,44 @@ void zdi_write_memory_data_register(ZDIHandle * pHandle, uint8_t MemoryData)
 	zdi_driver_write_register(pHandle, ZDI_WR_MEM, MemoryData);
 }
 
-void zdi_read_AF(ZDIHandle * pHandle, uint32_t * pValue)
+uint32_t zdi_read_AF(ZDIHandle * pHandle)
 {
-	zdi_read_memory_address_register(pHandle, ZDI_RW_CTL_AF, pValue);
+	return zdi_read_memory_address_register(pHandle, ZDI_RW_CTL_AF);
 }
 
-void zdi_read_BC(ZDIHandle * pHandle, uint32_t * pValue)
+uint32_t zdi_read_BC(ZDIHandle * pHandle)
 {
-	zdi_read_memory_address_register(pHandle, ZDI_RW_CTL_BC, pValue);
+	return zdi_read_memory_address_register(pHandle, ZDI_RW_CTL_BC);
 }
 
-void zdi_read_DE(ZDIHandle * pHandle, uint32_t * pValue)
+uint32_t zdi_read_DE(ZDIHandle * pHandle)
 {
-	zdi_read_memory_address_register(pHandle, ZDI_RW_CTL_DE, pValue);
+	return zdi_read_memory_address_register(pHandle, ZDI_RW_CTL_DE);
 }
 
-void zdi_read_HL(ZDIHandle * pHandle, uint32_t * pValue)
+uint32_t zdi_read_HL(ZDIHandle * pHandle)
 {
-	zdi_read_memory_address_register(pHandle, ZDI_RW_CTL_HL, pValue);
+	return zdi_read_memory_address_register(pHandle, ZDI_RW_CTL_HL);
 }
 
-void zdi_read_IX(ZDIHandle * pHandle, uint32_t * pValue)
+uint32_t zdi_read_IX(ZDIHandle * pHandle)
 {
-	zdi_read_memory_address_register(pHandle, ZDI_RW_CTL_IX, pValue);
+	return zdi_read_memory_address_register(pHandle, ZDI_RW_CTL_IX);
 }
 
-void zdi_read_IY(ZDIHandle * pHandle, uint32_t * pValue)
+uint32_t zdi_read_IY(ZDIHandle * pHandle)
 {
-	zdi_read_memory_address_register(pHandle, ZDI_RW_CTL_IY, pValue);
+	return zdi_read_memory_address_register(pHandle, ZDI_RW_CTL_IY);
 }
 
-void zdi_read_SP(ZDIHandle * pHandle, uint32_t * pValue)
+uint32_t zdi_read_SP(ZDIHandle * pHandle)
 {
-	zdi_read_memory_address_register(pHandle, ZDI_RW_CTL_SP, pValue);
+	return zdi_read_memory_address_register(pHandle, ZDI_RW_CTL_SP);
 }
 
-void zdi_read_PC(ZDIHandle * pHandle, uint32_t * pValue)
+uint32_t zdi_read_PC(ZDIHandle * pHandle)
 {
-	zdi_read_memory_address_register(pHandle, ZDI_RW_CTL_PC, pValue);
+	return zdi_read_memory_address_register(pHandle, ZDI_RW_CTL_PC);
 }
 
 void zdi_write_AF(ZDIHandle * pHandle, uint32_t Value)
