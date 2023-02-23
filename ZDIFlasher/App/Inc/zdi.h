@@ -43,6 +43,8 @@ uint32_t zdi_read_IY(ZDIHandle * pHandle);
 uint32_t zdi_read_SP(ZDIHandle * pHandle);
 uint32_t zdi_read_PC(ZDIHandle * pHandle);
 
+void zdi_read_memory(ZDIHandle * pHandle, uint32_t address, uint8_t * pData, uint32_t length);
+
 void zdi_write_AF(ZDIHandle * pHandle, uint32_t Value);
 void zdi_write_BC(ZDIHandle * pHandle, uint32_t Value);
 void zdi_write_DE(ZDIHandle * pHandle, uint32_t Value);
@@ -51,5 +53,8 @@ void zdi_write_IX(ZDIHandle * pHandle, uint32_t Value);
 void zdi_write_IY(ZDIHandle * pHandle, uint32_t Value);
 void zdi_write_SP(ZDIHandle * pHandle, uint32_t Value);
 void zdi_write_PC(ZDIHandle * pHandle, uint32_t Value);
+
+void zdi_write_memory(ZDIHandle * pHandle, uint32_t address, uint8_t * pData, uint32_t length);
+void zdi_fill_memory(ZDIHandle * pHandle, uint32_t address, uint8_t data, uint32_t length);
 
 #endif /* INC_ZDI_H_ */

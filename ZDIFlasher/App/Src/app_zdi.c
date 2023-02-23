@@ -11,6 +11,7 @@
 #include "zdi.h"
 
 static ZDIHandle zdi_handle;
+static uint8_t	buffer[16000];
 
 void app_zdi_init()
 {
@@ -67,10 +68,31 @@ ZDIError app_zdi_testing()
 	printf("Status Register=     0x%02x\n", zdi_handle.zdi_status);
 	printf("PC=                  0x%lx\n", zdi_handle.pc);
 
+	app_zdi_print_dump(0, 0x100);
+
 	printf("Deactivate ZDI\n");
 	zdi_deactivate_zdi(&zdi_handle);
 
 	printf("Status Register=     0x%02x\n", zdi_handle.zdi_status);
 
 	return rc;
+}
+
+void app_zdi_print_dump(uint32_t address, uint32_t length)
+{
+	uint32_t real_lenth = length;
+
+	if (length > sizeof(buffer)) {
+		real_lenth = sizeof(buffer);
+	}
+
+	zdi_read_memory(&zdi_handle, address, buffer, real_lenth);
+
+	for (uint32_t i = 0; i < real_lenth; i++) {
+		if ((i % 16) == 0) {
+			printf("\n%06lx ", address + i);
+		}
+		printf("%02x ", buffer[i]);
+	}
+	printf("\n");
 }

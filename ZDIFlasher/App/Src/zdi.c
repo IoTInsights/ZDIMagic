@@ -253,6 +253,15 @@ uint32_t zdi_read_PC(ZDIHandle * pHandle)
 	return zdi_read_memory_address_register(pHandle, ZDI_RW_CTL_PC);
 }
 
+void zdi_read_memory(ZDIHandle * pHandle, uint32_t address, uint8_t * pData, uint32_t length)
+{
+	zdi_write_PC(pHandle, address);
+
+	for (uint32_t i = 0; i < length; i++) {
+		pData[i] = zdi_driver_read_register(pHandle, ZDI_RD_MEM);
+	}
+}
+
 void zdi_write_AF(ZDIHandle * pHandle, uint32_t Value)
 {
 	zdi_write_memory_address_register(pHandle, ZDI_RW_CTL_AF, Value);
@@ -291,4 +300,22 @@ void zdi_write_SP(ZDIHandle * pHandle, uint32_t Value)
 void zdi_write_PC(ZDIHandle * pHandle, uint32_t Value)
 {
 	zdi_write_memory_address_register(pHandle, ZDI_RW_CTL_PC, Value);
+}
+
+void zdi_write_memory(ZDIHandle * pHandle, uint32_t address, uint8_t * pData, uint32_t length)
+{
+	zdi_write_PC(pHandle, address);
+
+	for (uint32_t i = 0; i < length; i++) {
+		zdi_driver_write_register(pHandle, ZDI_WR_MEM, pData[i]);
+	}
+}
+
+void zdi_fill_memory(ZDIHandle * pHandle, uint32_t address, uint8_t data, uint32_t length)
+{
+	zdi_write_PC(pHandle, address);
+
+	for (uint32_t i = 0; i < length; i++) {
+		zdi_driver_write_register(pHandle, ZDI_WR_MEM, data);
+	}
 }

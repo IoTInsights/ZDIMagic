@@ -16,7 +16,7 @@
 
 #define	ZDI_VERSION_MAJOR		0
 #define	ZDI_VERSION_MINOR		7
-#define ZDI_VERSION_PATCH		1
+#define ZDI_VERSION_PATCH		2
 
 typedef struct zdi_handle_s {
 	bool				is_open;
