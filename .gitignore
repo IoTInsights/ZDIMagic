@@ -33,3 +33,7 @@ Release/
 .cproject
 .mxproject
 .settings
+
+.idea
+
+cmake-build-debug

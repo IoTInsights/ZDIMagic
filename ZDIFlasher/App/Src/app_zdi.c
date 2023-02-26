@@ -7,6 +7,9 @@
 
 #include <stdio.h>
 
+#include "app_button.h"
+#include "app_commander.h"
+#include "app_usb.h"
 #include "app_zdi.h"
 #include "zdi.h"
 
@@ -15,6 +18,10 @@ static uint8_t	buffer[16000];
 
 void app_zdi_init()
 {
+	app_button_init();
+	app_commander_init();
+	app_usb_init();
+
 	printf("\n\n\nZDI Flasher %d.%d.%d " ZDI_VERSION_DATE "\n", ZDI_VERSION_MAJOR, ZDI_VERSION_MINOR, ZDI_VERSION_PATCH);
 
 	zdi_init(&zdi_handle);
@@ -36,6 +43,9 @@ void app_zdi_init()
 
 void app_zdi_loop()
 {
+	app_button_loop();
+	app_commander_loop();
+	app_usb_loop();
 	zdi_loop();
 }
 

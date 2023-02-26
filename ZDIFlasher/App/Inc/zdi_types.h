@@ -11,12 +11,7 @@
 #include <stdbool.h>
 
 #include "gpio.h"
-
-#define	ZDI_VERSION_DATE		"2022-02-18"
-
-#define	ZDI_VERSION_MAJOR		0
-#define	ZDI_VERSION_MINOR		7
-#define ZDI_VERSION_PATCH		2
+#include "zdi_constants.h"
 
 typedef struct zdi_handle_s {
 	bool				is_open;

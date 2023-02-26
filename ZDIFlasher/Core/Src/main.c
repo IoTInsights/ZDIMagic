@@ -24,7 +24,6 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "app_button.h"
 #include "app_zdi.h"
 
 /* USER CODE END Includes */
@@ -92,7 +91,6 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  app_button_init();
   app_zdi_init();
 
   /* USER CODE END 2 */
@@ -101,7 +99,6 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  app_button_loop();
 	  app_zdi_loop();
 
     /* USER CODE END WHILE */
